@@ -1,0 +1,23 @@
+services:
+  nginx:
+    image: matveysviadysh/my-nginx-image
+    container_name: my-nginx-container
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - nginx_apache_net
+    depends_on:
+      - apache
+
+  apache:
+    image: matveysviadysh/apache-php-info
+    container_name: apache_info
+    ports:
+      - "8080:80"
+    networks:
+      - nginx_apache_net
+
+networks:
+  nginx_apache_net:
+    driver: bridge

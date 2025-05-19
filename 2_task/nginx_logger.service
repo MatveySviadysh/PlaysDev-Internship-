@@ -1,0 +1,14 @@
+[Unit]
+Description=Custom Nginx Logger Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/nginx_logger.sh
+Restart=always
+User=nginx
+Group=nginx
+StandardOutput=file:/var/log/nginx_logger_stdout.log
+StandardError=file:/var/log/nginx_logger_stderr.log
+
+[Install]
+WantedBy=multi-user.target
