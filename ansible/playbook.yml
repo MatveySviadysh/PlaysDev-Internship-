@@ -1,0 +1,6 @@
+- name: Deploy Docker Containers
+  hosts: all
+  roles:
+    - git
+    - docker_deployment
+    

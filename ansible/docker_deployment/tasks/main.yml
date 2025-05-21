@@ -1,0 +1,115 @@
+---
+- name: Install Docker on Amazon Linux
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution'] == "Amazon"
+  yum:
+    name: docker
+    state: present
+
+- name: Install Docker on Ubuntu
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Add user to docker group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+
+- name: Install Docker Compose plugin
+  become: yes
+  shell: |
+    mkdir -p ~/.docker/cli-plugins/
+    curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-`uname -s`-`uname -m` -o ~/.docker/cli-plugins/docker-compose
+    chmod +x ~/.docker/cli-plugins/docker-compose
+  args:
+    creates: ~/.docker/cli-plugins/docker-compose
+
+
+- name: Download docker-compose
+  become: yes
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+
+# - name: Start and enable Docker on Amazon Linux
+#   become: yes
+#   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution'] == "Amazon"
+#   service:
+#     name: docker
+#     state: started
+#     enabled: yes
+
+
+# - name: Start and enable Docker on Ubuntu
+#   become: yes
+#   when: ansible_facts['os_family'] == "Debian"
+#   service:
+#     name: docker
+#     state: started
+#     enabled: yes
+
+- name: Start and enable Docker
+  become: yes
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+
+- name: Create Docker network
+  become: yes
+  docker_network:
+    name: nginx_apache_net
+    state: present
+
+
+- name: Pull Nginx image
+  become: yes
+  docker_image:
+    name: matveysviadysh/no-alpline-nginx
+    tag: latest
+    source: pull
+
+
+- name: Pull Apache image
+  become: yes
+  docker_image:
+    name: matveysviadysh/apache-unroot
+    tag: latest
+    source: pull
+
+
+- name: Run Nginx container
+  become: yes
+  docker_container:
+    name: my-nginx-container
+    image: matveysviadysh/no-alpline-nginx:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - name: nginx_apache_net
+
+
+- name: Run Apache container
+  become: yes
+  docker_container:
+    name: apache
+    image: matveysviadysh/apache-unroot:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "8080:80"
+    networks:
+      - name: nginx_apache_net

@@ -1,0 +1,16 @@
+---
+- name: Ensure git is installed
+  become: yes
+  package:
+    name: git
+    state: present
+
+
+- name: Clone private repository using token
+  become: yes
+  become_user: root
+  git:
+    repo: 'https://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@github.com/MatveySviadysh/PlaysDev-Internship-.git'
+    dest: /opt/my-repository
+    version: main
+    force: yes
