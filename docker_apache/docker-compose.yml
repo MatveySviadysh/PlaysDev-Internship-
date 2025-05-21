@@ -7,6 +7,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - /var/log/nginx_logs:/var/log/nginx
     networks:
       - nginx_apache_net 
     depends_on:
