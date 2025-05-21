@@ -1,5 +1,7 @@
 - name: Deploy Docker Containers
   hosts: all
+  vars_files:
+    - /home/matvey/Documents/internship/ansible/secret_vars.yml
   roles:
     - git
     - docker_deployment
