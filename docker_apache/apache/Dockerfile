@@ -5,7 +5,7 @@ RUN apt-get update && \
     docker-php-ext-install gd
 
 COPY html/info.php /var/www/html/
-RUN chmod -R 755 /var/www/html && chown -R www-data:www-data
+RUN chmod -R 755 /var/www/html && chown -R www-data:www-data /var/www/html
 
 COPY apache2.conf /etc/apache2/sites-available/000-default.conf
 
