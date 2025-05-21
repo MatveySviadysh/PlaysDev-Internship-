@@ -11,6 +11,6 @@
   become_user: root
   git:
     repo: 'https://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@github.com/MatveySviadysh/PlaysDev-Internship-.git'
-    dest: /opt/my-repository
+    dest: /opt/docker_apache
     version: main
     force: yes

@@ -1,10 +1,10 @@
----
 - name: Install Docker on Amazon Linux
   become: yes
   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution'] == "Amazon"
   yum:
     name: docker
     state: present
+
 
 - name: Install Docker on Ubuntu
   become: yes
@@ -13,6 +13,7 @@
     name: docker.io
     state: present
     update_cache: yes
+
 
 - name: Add user to docker group
   become: yes
@@ -32,31 +33,6 @@
     creates: ~/.docker/cli-plugins/docker-compose
 
 
-- name: Download docker-compose
-  become: yes
-  get_url:
-    url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}
-    dest: /usr/local/bin/docker-compose
-    mode: '0755'
-
-
-# - name: Start and enable Docker on Amazon Linux
-#   become: yes
-#   when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution'] == "Amazon"
-#   service:
-#     name: docker
-#     state: started
-#     enabled: yes
-
-
-# - name: Start and enable Docker on Ubuntu
-#   become: yes
-#   when: ansible_facts['os_family'] == "Debian"
-#   service:
-#     name: docker
-#     state: started
-#     enabled: yes
-
 - name: Start and enable Docker
   become: yes
   service:
@@ -65,51 +41,50 @@
     enabled: yes
 
 
-- name: Create Docker network
+- name: Build nginx image
   become: yes
-  docker_network:
-    name: nginx_apache_net
-    state: present
+  shell: docker build -t my-test-nginx .
+  args:
+    chdir: /opt/docker_apache/docker_apache/nginx
 
 
-- name: Pull Nginx image
+- name: Build apache image
   become: yes
-  docker_image:
-    name: matveysviadysh/no-alpline-nginx
-    tag: latest
-    source: pull
+  shell: docker build -t my-test-apache .
+  args:
+    chdir: /opt/docker_apache/docker_apache/apache
 
 
-- name: Pull Apache image
+- name: Remove existing my-nginx-container if exists
   become: yes
-  docker_image:
-    name: matveysviadysh/apache-unroot
-    tag: latest
-    source: pull
+  shell: docker rm -f my-nginx-container || true
 
 
-- name: Run Nginx container
+- name: Remove  existing apache if exists
   become: yes
-  docker_container:
-    name: my-nginx-container
-    image: matveysviadysh/no-alpline-nginx:latest
-    state: started
-    restart_policy: always
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - name: nginx_apache_net
+  shell: docker rm -f apache || true
 
 
-- name: Run Apache container
+- name: Stop and remove all containers using port 8080
   become: yes
-  docker_container:
-    name: apache
-    image: matveysviadysh/apache-unroot:latest
-    state: started
-    restart_policy: always
-    ports:
-      - "8080:80"
-    networks:
-      - name: nginx_apache_net
+  shell: |
+    containers=$(docker ps -q --filter "publish=8080")
+    if [ -n "$containers" ]; then
+      docker rm -f $containers
+    fi
+  changed_when: false
+
+
+- name: Remove conflicting containers by name if exist
+  become: yes
+  shell: |
+    docker rm -f my-nginx-container || true
+    docker rm -f apache_info || true
+  changed_when: false
+
+
+- name: Run docker compose up
+  become: yes
+  shell: docker compose up -d
+  args:
+    chdir: /opt/docker_apache/docker_apache/
