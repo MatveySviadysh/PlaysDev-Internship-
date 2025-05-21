@@ -34,6 +34,8 @@ RUN chmod 644 /etc/letsencrypt/live/nginxdocker123.ddns.net/fullchain.pem && \
     chmod 644 /etc/letsencrypt/options-ssl-nginx.conf && \
     chmod 644 /etc/letsencrypt/ssl-dhparams.pem
 
+RUN chown nginx:nginx /usr/share/nginx/html/cpu_load.txt
+
 RUN chown -R nginx:nginx /etc/nginx /var/log/nginx
 RUN mkdir -p /var/cache/nginx /var/log/nginx && \
     chown -R nginx:nginx /var/cache/nginx /var/log/nginx

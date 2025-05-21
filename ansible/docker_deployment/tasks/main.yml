@@ -54,37 +54,18 @@
   args:
     chdir: /opt/docker_apache/docker_apache/apache
 
-
 - name: Remove existing my-nginx-container if exists
   become: yes
   shell: docker rm -f my-nginx-container || true
 
-
-- name: Remove  existing apache if exists
+- name: Remove existing apache_info container if exists
   become: yes
-  shell: docker rm -f apache || true
+  shell: docker rm -f apache_info || true
 
-
-- name: Stop and remove all containers using port 8080
+- name: Restart docker compose services
   become: yes
   shell: |
-    containers=$(docker ps -q --filter "publish=8080")
-    if [ -n "$containers" ]; then
-      docker rm -f $containers
-    fi
-  changed_when: false
-
-
-- name: Remove conflicting containers by name if exist
-  become: yes
-  shell: |
-    docker rm -f my-nginx-container || true
-    docker rm -f apache_info || true
-  changed_when: false
-
-
-- name: Run docker compose up
-  become: yes
-  shell: docker compose up -d
+    docker compose down
+    docker compose up -d
   args:
     chdir: /opt/docker_apache/docker_apache/
