@@ -1,0 +1,14 @@
+FROM php:8.0-apache
+
+RUN apt-get update && \
+    apt-get install -y libpng-dev && \
+    docker-php-ext-install gd
+
+COPY html/ /var/www/html/
+RUN chmod -R 644 /var/www/html && chown -R www-data:www-data /var/www/html
+
+COPY apache2.conf /etc/apache2/sites-available/000-default.conf
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]

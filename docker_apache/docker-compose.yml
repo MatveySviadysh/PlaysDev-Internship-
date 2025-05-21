@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: my-test-nginx
+    container_name: my-nginx-container
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - nginx_apache_net 
+    depends_on:
+      - apache
+
+  apache:
+    image: my-test-apache
+    container_name: apache_info
+    ports:
+      - "8080:80"
+    networks:
+      - nginx_apache_net
+
+networks:
+  nginx_apache_net:
+    driver: bridge
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CPU Load Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .value {
+            font-size: 2em;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>CPU Load</h1>
+    <p class="value" id="cpu-value">Loading...</p>
+
+    <script>
+        async function fetchCpuLoad() {
+            try {
+                const response = await fetch('/cpu_data');
+                if (!response.ok) throw new Error('Failed to fetch');
+                const text = await response.text();
+                document.getElementById('cpu-value').textContent = text.trim();
+            } catch (error) {
+                document.getElementById('cpu-value').textContent = 'Error loading data';
+            }
+        }
+
+        fetchCpuLoad(); // initial load
+        setInterval(fetchCpuLoad, 5000); // update every 5 seconds
+    </script>
+</body>
+</html>
