@@ -4,8 +4,8 @@ RUN apt-get update && \
     apt-get install -y libpng-dev && \
     docker-php-ext-install gd
 
-COPY html/ /var/www/html/
-RUN chmod -R 644 /var/www/html && chown -R www-data:www-data /var/www/html
+COPY info.php /var/www/html/
+RUN chmod -R 755 /var/www/html && chown -R www-data:www-data
 
 COPY apache2.conf /etc/apache2/sites-available/000-default.conf
 
