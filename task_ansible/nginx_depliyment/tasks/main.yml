@@ -1,0 +1,41 @@
+---
+- name: Install nginx
+  yum:
+    name: nginx
+    state: present
+    update_cache: yes
+  tags: 
+    - nginx
+
+- name: Start nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  tags: 
+    - nginx
+
+- name: ensure nginx is installed
+  service: 
+    name: nginx 
+    state: stopped
+  tags: 
+    - nginx_off
+
+- name: Uninstall package
+  yum:
+    name: nginx
+    state: absent
+    autoremove: yes
+  tags: 
+    - nginx_off
+
+- name: Copy HTML file
+  copy:
+    src: index.html
+    dest: /usr/share/nginx/html
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  tags: 
+    - nginx
